@@ -36,7 +36,7 @@
 # what it finds in /proc to binary data to feed the parse-edid program.
 # The parse-edid program was written by John Fremlin and is available at
 # the following address:
-#   http://john.fremlin.de/programs/linux/read-edid/
+#   http://www.polypux.org/projects/read-edid/
 
 use strict;
 use Fcntl qw(:DEFAULT :seek);

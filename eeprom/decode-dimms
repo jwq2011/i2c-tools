@@ -35,7 +35,7 @@
 # 1997,1999, Rev 1.2B
 #
 # Jedec Standards 4.1.x & 4.5.x
-# http://www.jedec.org
+# https://www.jedec.org/
 #
 
 require 5.004;
