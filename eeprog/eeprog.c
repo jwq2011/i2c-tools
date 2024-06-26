@@ -65,7 +65,7 @@ void do_usage_if(int b, int line)
 "		eeprog /dev/i2c-1 0x51 -x -r 0x22:0x20\n"
 "	3- write the current timestamp at address 0x200 of the EEPROM on\n"
 "	   bus 0 at address 0x33\n"
-"		date | eeprog /dev/i2c-0 0x33 -w 0x200\n";
+"		date | eeprog -f /dev/i2c-0 0x33 -w 0x200\n";
 
 	if(!b)
 		return;
