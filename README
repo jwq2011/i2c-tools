@@ -106,3 +106,11 @@ with Cc to the current maintainer:
   Jean Delvare <jdelvare@suse.de>
 For additional information about this list, see:
   http://vger.kernel.org/vger-lists.html#linux-i2c
+
+CONTRIBUTIONS
+-------------
+
+Contributions are very welcome. Please send them to the linux-i2c mailing list
+mentioned above. Make sure they include a 'Developer's certificate of origin'
+as used for the Linux Kernel and described here:
+  https://www.kernel.org/doc/html/latest/process/submitting-patches.html#sign-your-work-the-developer-s-certificate-of-origin
