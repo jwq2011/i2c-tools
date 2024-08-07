@@ -38,12 +38,14 @@ enum parse_state {
 #define PRINT_READ_BUF	(1 << 1)
 #define PRINT_WRITE_BUF	(1 << 2)
 #define PRINT_HEADER	(1 << 3)
+#define PRINT_BINARY	(1 << 4)
 
 static void help(void)
 {
 	fprintf(stderr,
 		"Usage: i2ctransfer [OPTIONS] I2CBUS DESC [DATA] [DESC [DATA]]...\n"
 		"  OPTIONS: -a allow even reserved addresses\n"
+		"           -b print read data as binary, disables -v\n"
 		"           -f force access even if address is marked used\n"
 		"           -h this help text\n"
 		"           -v verbose mode\n"
@@ -106,12 +108,16 @@ static void print_msgs(struct i2c_msg *msgs, __u32 nmsgs, unsigned flags)
 		}
 
 		if (len && print_buf) {
-			if (flags & PRINT_HEADER)
-				fprintf(output, ", buf ");
-			for (j = 0; j < len - 1; j++)
-				fprintf(output, "0x%02x ", msgs[i].buf[j]);
-			/* Print final byte with newline */
-			fprintf(output, "0x%02x\n", msgs[i].buf[j]);
+			if (flags & PRINT_BINARY) {
+				fwrite(msgs[i].buf, 1, len, output);
+			} else {
+				if (flags & PRINT_HEADER)
+					fprintf(output, ", buf ");
+				for (j = 0; j < len - 1; j++)
+					fprintf(output, "0x%02x ", msgs[i].buf[j]);
+				/* Print final byte with newline */
+				fprintf(output, "0x%02x\n", msgs[i].buf[j]);
+			}
 		} else if (flags & PRINT_HEADER) {
 			fprintf(output, "\n");
 		}
@@ -138,7 +144,7 @@ int main(int argc, char *argv[])
 {
 	char filename[20];
 	int i2cbus, address = -1, file, opt, arg_idx, nmsgs = 0, nmsgs_sent, i;
-	int force = 0, yes = 0, version = 0, verbose = 0, all_addrs = 0;
+	int force = 0, yes = 0, version = 0, verbose = 0, all_addrs = 0, binary = 0;
 	struct i2c_msg msgs[I2C_RDRW_IOCTL_MAX_MSGS];
 	enum parse_state state = PARSE_GET_DESC;
 	unsigned buf_idx = 0;
@@ -147,9 +153,10 @@ int main(int argc, char *argv[])
 		msgs[i].buf = NULL;
 
 	/* handle (optional) flags first */
-	while ((opt = getopt(argc, argv, "afhvVy")) != -1) {
+	while ((opt = getopt(argc, argv, "abfhvVy")) != -1) {
 		switch (opt) {
 		case 'a': all_addrs = 1; break;
+		case 'b': binary = 1; break;
 		case 'f': force = 1; break;
 		case 'v': verbose = 1; break;
 		case 'V': version = 1; break;
@@ -326,6 +333,7 @@ int main(int argc, char *argv[])
 
 	if (yes || confirm(filename, msgs, nmsgs)) {
 		struct i2c_rdwr_ioctl_data rdwr;
+		unsigned print_flags = PRINT_READ_BUF;
 
 		rdwr.msgs = msgs;
 		rdwr.nmsgs = nmsgs;
@@ -337,7 +345,12 @@ int main(int argc, char *argv[])
 			fprintf(stderr, "Warning: only %d/%d messages were sent\n", nmsgs_sent, nmsgs);
 		}
 
-		print_msgs(msgs, nmsgs_sent, PRINT_READ_BUF | (verbose ? PRINT_HEADER | PRINT_WRITE_BUF : 0));
+		if (binary)
+			print_flags |= PRINT_BINARY;
+		else if (verbose)
+			print_flags |= PRINT_HEADER | PRINT_WRITE_BUF;
+
+		print_msgs(msgs, nmsgs_sent, print_flags);
 	}
 
 	close(file);

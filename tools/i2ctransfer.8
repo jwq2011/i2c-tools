@@ -5,6 +5,7 @@ i2ctransfer \- send user-defined I2C messages in one transfer
 .SH SYNOPSIS
 .B i2ctransfer
 .RB [ -a ]
+.RB [ -b ]
 .RB [ -f ]
 .RB [ -v ]
 .RB [ -y ]
@@ -42,6 +43,13 @@ This program helps you to create proper transfers for your needs.
 .TP
 .B -a
 Allow using addresses between 0x00 - 0x07 and 0x78 - 0x7f. Not recommended.
+.TP
+.B -b
+Print data from read messages as binary data. Disables
+.I -v
+(verbose). Useful for piping into a pretty printing tool like
+.B hexdump
+or for redirecting into a file to be analyzed later.
 .TP
 .B -f
 Force access to the device even if it is already busy.
