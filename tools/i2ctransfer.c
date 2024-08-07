@@ -42,7 +42,13 @@ enum parse_state {
 static void help(void)
 {
 	fprintf(stderr,
-		"Usage: i2ctransfer [-f] [-y] [-v] [-V] [-a] I2CBUS DESC [DATA] [DESC [DATA]]...\n"
+		"Usage: i2ctransfer [OPTIONS] I2CBUS DESC [DATA] [DESC [DATA]]...\n"
+		"  OPTIONS: -a allow even reserved addresses\n"
+		"           -f force access even if address is marked used\n"
+		"           -h this help text\n"
+		"           -v verbose mode\n"
+		"           -V version info\n"
+		"           -y yes to all confirmations\n"
 		"  I2CBUS is an integer or an I2C bus name\n"
 		"  DESC describes the transfer in the form: {r|w}LENGTH[@address]\n"
 		"    1) read/write-flag 2) LENGTH (range 0-65535, or '?')\n"
@@ -141,15 +147,15 @@ int main(int argc, char *argv[])
 		msgs[i].buf = NULL;
 
 	/* handle (optional) flags first */
-	while ((opt = getopt(argc, argv, "Vafhvy")) != -1) {
+	while ((opt = getopt(argc, argv, "afhvVy")) != -1) {
 		switch (opt) {
-		case 'V': version = 1; break;
-		case 'v': verbose = 1; break;
-		case 'f': force = 1; break;
-		case 'y': yes = 1; break;
 		case 'a': all_addrs = 1; break;
-		case 'h':
+		case 'f': force = 1; break;
+		case 'v': verbose = 1; break;
+		case 'V': version = 1; break;
+		case 'y': yes = 1; break;
 		case '?':
+		case 'h':
 			help();
 			exit(opt == '?');
 		}
