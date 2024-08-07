@@ -85,10 +85,10 @@ static int check_funcs(int file)
 	return 0;
 }
 
-static void print_msgs(struct i2c_msg *msgs, __u32 nmsgs, unsigned flags)
+static void print_msgs(struct i2c_msg *msgs, __u32 nmsgs, unsigned int flags)
 {
 	FILE *output = flags & PRINT_STDERR ? stderr : stdout;
-	unsigned i;
+	unsigned int i;
 	__u16 j;
 
 	for (i = 0; i < nmsgs; i++) {
@@ -147,7 +147,7 @@ int main(int argc, char *argv[])
 	int force = 0, yes = 0, version = 0, verbose = 0, all_addrs = 0, binary = 0;
 	struct i2c_msg msgs[I2C_RDRW_IOCTL_MAX_MSGS];
 	enum parse_state state = PARSE_GET_DESC;
-	unsigned buf_idx = 0;
+	unsigned int buf_idx = 0;
 
 	for (i = 0; i < I2C_RDRW_IOCTL_MAX_MSGS; i++)
 		msgs[i].buf = NULL;
@@ -333,7 +333,7 @@ int main(int argc, char *argv[])
 
 	if (yes || confirm(filename, msgs, nmsgs)) {
 		struct i2c_rdwr_ioctl_data rdwr;
-		unsigned print_flags = PRINT_READ_BUF;
+		unsigned int print_flags = PRINT_READ_BUF;
 
 		rdwr.msgs = msgs;
 		rdwr.nmsgs = nmsgs;
