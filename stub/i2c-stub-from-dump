@@ -12,11 +12,6 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-# MA  02110-1301, USA
-#
 # This script feeds the i2c-stub driver with dump data from a real
 # I2C or SMBus chip. This can be useful when writing a driver for
 # a device you do not have access to, but of which you have a dump.

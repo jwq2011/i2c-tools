@@ -21,11 +21,6 @@
 #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #    GNU General Public License for more details.
 #
-#    You should have received a copy of the GNU General Public License
-#    along with this program; if not, write to the Free Software
-#    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-#    MA 02110-1301 USA.
-#
 # This script is a replacement for the now deprecated ddcmon kernel driver.
 # Instead of having a dedicated driver, it is better to reuse the standard
 # eeprom driver and implement the EDID-specific code in user-space.
