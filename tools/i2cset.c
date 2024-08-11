@@ -28,9 +28,7 @@
 #include "util.h"
 #include "../version.h"
 
-static void help(void) __attribute__ ((noreturn));
-
-static void help(void)
+static void __attribute__ ((noreturn)) help(int status)
 {
 	fprintf(stderr,
 		"Usage: i2cset [-f] [-y] [-m MASK] [-r] [-a] I2CBUS CHIP-ADDRESS DATA-ADDRESS [VALUE] ... [MODE]\n"
@@ -43,7 +41,7 @@ static void help(void)
 		"    i (I2C block data)\n"
 		"    s (SMBus block data)\n"
 		"    Append p for SMBus PEC\n");
-	exit(1);
+	exit(status);
 }
 
 static int check_funcs(int file, int size, int pec)
@@ -173,8 +171,7 @@ int main(int argc, char *argv[])
 		case 'a': all_addrs = 1; break;
 		case 'h':
 		case '?':
-			help();
-			exit(opt == '?');
+			help(opt == '?');
 		}
 	}
 
@@ -184,20 +181,20 @@ int main(int argc, char *argv[])
 	}
 
 	if (argc < optind + 3)
-		help();
+		help(1);
 
 	i2cbus = lookup_i2c_bus(argv[optind]);
 	if (i2cbus < 0)
-		help();
+		help(1);
 
 	address = parse_i2c_address(argv[optind+1], all_addrs);
 	if (address < 0)
-		help();
+		help(1);
 
 	daddress = strtol(argv[optind+2], &end, 0);
 	if (*end || daddress < 0 || daddress > 0xff) {
 		fprintf(stderr, "Error: Data address invalid!\n");
-		help();
+		help(1);
 	}
 
 	/* check for command/mode */
@@ -218,7 +215,7 @@ int main(int argc, char *argv[])
 		if (strlen(argv[argc-1]) > 2
 		    || (strlen(argv[argc-1]) == 2 && argv[argc-1][1] != 'p')) {
 			fprintf(stderr, "Error: Invalid mode '%s'!\n", argv[argc-1]);
-			help();
+			help(1);
 		}
 		switch (argv[argc-1][0]) {
 		case 'b': size = I2C_SMBUS_BYTE_DATA; break;
@@ -227,25 +224,25 @@ int main(int argc, char *argv[])
 		case 'i': size = I2C_SMBUS_I2C_BLOCK_DATA; break;
 		default:
 			fprintf(stderr, "Error: Invalid mode '%s'!\n", argv[argc-1]);
-			help();
+			help(1);
 		}
 		pec = argv[argc-1][1] == 'p';
 		if (size == I2C_SMBUS_BLOCK_DATA || size == I2C_SMBUS_I2C_BLOCK_DATA) {
 			if (pec && size == I2C_SMBUS_I2C_BLOCK_DATA) {
 				fprintf(stderr, "Error: PEC not supported for I2C block writes!\n");
-				help();
+				help(1);
 			}
 			if (maskp) {
 				fprintf(stderr, "Error: Mask not supported for block writes!\n");
-				help();
+				help(1);
 			}
 			if (argc > (int)sizeof(block) + optind + 4) {
 				fprintf(stderr, "Error: Too many arguments!\n");
-				help();
+				help(1);
 			}
 		} else if (argc != optind + 5) {
 			fprintf(stderr, "Error: Too many arguments!\n");
-			help();
+			help(1);
 		}
 	}
 
@@ -262,12 +259,12 @@ int main(int argc, char *argv[])
 		value = strtol(argv[optind+3], &end, 0);
 		if (*end || value < 0) {
 			fprintf(stderr, "Error: Data value invalid!\n");
-			help();
+			help(1);
 		}
 		if ((size == I2C_SMBUS_BYTE_DATA && value > 0xff)
 		    || (size == I2C_SMBUS_WORD_DATA && value > 0xffff)) {
 			fprintf(stderr, "Error: Data value out of range!\n");
-			help();
+			help(1);
 		}
 		break;
 	case I2C_SMBUS_BLOCK_DATA:
@@ -276,11 +273,11 @@ int main(int argc, char *argv[])
 			value = strtol(argv[optind + len + 3], &end, 0);
 			if (*end || value < 0) {
 				fprintf(stderr, "Error: Data value invalid!\n");
-				help();
+				help(1);
 			}
 			if (value > 0xff) {
 				fprintf(stderr, "Error: Data value out of range!\n");
-				help();
+				help(1);
 			}
 			block[len] = value;
 		}
@@ -295,12 +292,12 @@ int main(int argc, char *argv[])
 		vmask = strtol(maskp, &end, 0);
 		if (*end || vmask == 0) {
 			fprintf(stderr, "Error: Data value mask invalid!\n");
-			help();
+			help(1);
 		}
 		if (((size == I2C_SMBUS_BYTE || size == I2C_SMBUS_BYTE_DATA)
 		     && vmask > 0xff) || vmask > 0xffff) {
 			fprintf(stderr, "Error: Data value mask out of range!\n");
-			help();
+			help(1);
 		}
 	}
 
