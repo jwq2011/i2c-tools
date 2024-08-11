@@ -31,9 +31,7 @@
 #include "util.h"
 #include "../version.h"
 
-static void help(void) __attribute__ ((noreturn));
-
-static void help(void)
+static void __attribute__ ((noreturn)) help(int status)
 {
 	fprintf(stderr,
 		"Usage: i2cget [-f] [-y] [-a] I2CBUS CHIP-ADDRESS [DATA-ADDRESS [MODE [LENGTH]]]\n"
@@ -48,7 +46,7 @@ static void help(void)
 		"    Append p for SMBus PEC\n"
 		"  LENGTH is the I2C block data length (between 1 and %d, default %d)\n",
 		I2C_SMBUS_BLOCK_MAX, I2C_SMBUS_BLOCK_MAX);
-	exit(1);
+	exit(status);
 }
 
 static int check_funcs(int file, int size, int daddress, int pec)
@@ -189,8 +187,7 @@ int main(int argc, char *argv[])
 		case 'a': all_addrs = 1; break;
 		case 'h':
 		case '?':
-			help();
-			exit(opt == '?');
+			help(opt == '?');
 		}
 	}
 
@@ -200,22 +197,22 @@ int main(int argc, char *argv[])
 	}
 
 	if (argc < optind + 2)
-		help();
+		help(1);
 
 	i2cbus = lookup_i2c_bus(argv[optind]);
 	if (i2cbus < 0)
-		help();
+		help(1);
 
 	address = parse_i2c_address(argv[optind+1], all_addrs);
 	if (address < 0)
-		help();
+		help(1);
 
 	if (argc > optind + 2) {
 		size = I2C_SMBUS_BYTE_DATA;
 		daddress = strtol(argv[optind+2], &end, 0);
 		if (*end || daddress < 0 || daddress > 0xff) {
 			fprintf(stderr, "Error: Data address invalid!\n");
-			help();
+			help(1);
 		}
 	} else {
 		size = I2C_SMBUS_BYTE;
@@ -231,24 +228,24 @@ int main(int argc, char *argv[])
 		case 'i': size = I2C_SMBUS_I2C_BLOCK_DATA; break;
 		default:
 			fprintf(stderr, "Error: Invalid mode!\n");
-			help();
+			help(1);
 		}
 		pec = argv[optind+3][1] == 'p';
 		if (size == I2C_SMBUS_I2C_BLOCK_DATA && pec) {
 			fprintf(stderr, "Error: PEC not supported for I2C block data!\n");
-			help();
+			help(1);
 		}
 	}
 
 	if (argc > optind + 4) {
 		if (size != I2C_SMBUS_I2C_BLOCK_DATA) {
 			fprintf(stderr, "Error: Length only valid for I2C block data!\n");
-			help();
+			help(1);
 		}
 		length = strtol(argv[optind+4], &end, 0);
 		if (*end || length < 1 || length > I2C_SMBUS_BLOCK_MAX) {
 			fprintf(stderr, "Error: Length invalid!\n");
-			help();
+			help(1);
 		}
 	} else {
 		length = I2C_SMBUS_BLOCK_MAX;
