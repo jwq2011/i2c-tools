@@ -143,7 +143,7 @@ static int confirm(const char *filename, struct i2c_msg *msgs, __u32 nmsgs)
 int main(int argc, char *argv[])
 {
 	char filename[20];
-	int i2cbus, address = -1, file, opt, arg_idx, nmsgs = 0, nmsgs_sent, i;
+	int i2cbus, address = -1, file, opt, nmsgs = 0, nmsgs_sent, i;
 	int force = 0, yes = 0, version = 0, verbose = 0, all_addrs = 0, binary = 0;
 	struct i2c_msg msgs[I2C_RDRW_IOCTL_MAX_MSGS];
 	enum parse_state state = PARSE_GET_DESC;
@@ -173,13 +173,12 @@ int main(int argc, char *argv[])
 		exit(0);
 	}
 
-	arg_idx = optind;
-	if (arg_idx == argc) {
+	if (optind == argc) {
 		help();
 		exit(1);
 	}
 
-	i2cbus = lookup_i2c_bus(argv[arg_idx++]);
+	i2cbus = lookup_i2c_bus(argv[optind++]);
 	if (i2cbus < 0)
 		exit(1);
 
@@ -187,8 +186,8 @@ int main(int argc, char *argv[])
 	if (file < 0 || check_funcs(file))
 		exit(1);
 
-	while (arg_idx < argc) {
-		char *arg_ptr = argv[arg_idx];
+	while (optind < argc) {
+		char *arg_ptr = argv[optind];
 		unsigned long len, raw_data;
 		__u16 flags;
 		__u8 data, *buf;
@@ -323,7 +322,7 @@ int main(int argc, char *argv[])
 			goto err_out;
 		}
 
-		arg_idx++;
+		optind++;
 	}
 
 	if (state != PARSE_GET_DESC || nmsgs == 0) {
@@ -361,7 +360,7 @@ int main(int argc, char *argv[])
 	exit(0);
 
  err_out_with_arg:
-	fprintf(stderr, "Error: faulty argument is '%s'\n", argv[arg_idx]);
+	fprintf(stderr, "Error: faulty argument is '%s'\n", argv[optind]);
  err_out:
 	close(file);
 
